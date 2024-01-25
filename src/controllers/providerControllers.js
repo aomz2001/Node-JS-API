@@ -313,7 +313,7 @@ exports.acceptJobUsers = async (req, res) => {
 
 exports.showAcceptService = async (req, res) => {
   try {
-    const { users_id } = req.query; 
+    const { users_id } = req.query;
     const result = await Provider.showJob(users_id);
     if (!result || result.length === 0) {
       return res.status(404).json({ message: 'No data found' });
@@ -331,8 +331,8 @@ exports.showAcceptService = async (req, res) => {
 
 exports.deleteAcceptService = async (req, res) => {
   try {
-    const { usersId, districtId, serviceId, petId } = req.body; 
-    await Provider.cancelJob(usersId, districtId, serviceId, petId);
+    const { usersId, districtId, serviceId, petId, service_price } = req.body; 
+    await Provider.cancelJob(usersId, districtId, serviceId, petId,service_price);
 
     res.status(200).send("Service deleted successfully");
   } catch (err) {
@@ -361,9 +361,9 @@ exports.generateQRCode = async (req, res) => {
   }
 };
 
-exports.uploadPayment = async (req, res, body) => {
+exports.uploadPayment = async (req, res) => {
   try {
-    const { providerId, districtId, petId, serviceId, usersId } = body;
+    const { providerId, districtId, petId, serviceId, usersId } = req.body;
     if (!req.file && providerId && districtId && petId && serviceId && usersId) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
@@ -386,16 +386,6 @@ exports.readFile = async (req, res) => {
     console.log('tmpFoldertmpFoldertmpFoldertmpFolder', tmpFolder)
     console.log('__dirname', __dirname)
     const result = await Provider.showPaymentState(payment);
-    // if (!result || result.length === 0) {
-    //   return res.status(404).json({ message: 'No data found' });
-    // }
-    // // ดึงชื่อไฟล์ payment จากผลลัพธ์ที่ได้
-    // const paymentFiles = result.map(item => item.payment);
-
-    // if (!paymentFiles || paymentFiles.length === 0) {
-    //   return res.status(404).json({ message: 'No payment files found' });
-    // }
-    // res.sendFile(path.join(tmpFolder, paymentFiles[0]))
     res.status(200).send({
       data: result,
       message: 'Data retrieved successfully',
@@ -411,13 +401,39 @@ exports.getPaymentFile= async (req, res) => {
     const { filename } = req.query;
     const tmpFolder = path.join(__dirname.replace("\\src\\controllers", ""), 'tmp');
     res.sendFile(path.join(tmpFolder, filename))
-    // res.status(200).send({
-    //   data: fileContents,
-    //   message: 'Data retrieved successfully',
-    // });
   } catch (err) {
     console.error(err);
     res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.putStatusWork = async (req, res) => {
+  try {
+    const { status_work, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Provider.updateReq(status_work, providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status updated successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.jobComplete = async (req, res) => {
+  try {
+    const { job_complete, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Provider.jobComplete(job_complete, providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status updated successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
   }
 };
 

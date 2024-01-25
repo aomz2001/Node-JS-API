@@ -63,7 +63,7 @@ module.exports = (app) => {
     app.post("/api/generate-qr", provider.generateQRCode);
   
     app.put(
-      "/api/upload-payment/:Id",
+      "/api/upload-payment",
       upload.single("file"),
       provider.uploadPayment
     );
@@ -71,4 +71,8 @@ module.exports = (app) => {
     app.get("/api/show-payment-state", provider.readFile);
 
     app.get("/api/get-payment-file", provider.getPaymentFile);
+
+    app.put("/api/update-status-work", provider.putStatusWork);
+
+    app.put("/api/job-complete-status", provider.jobComplete);
   };

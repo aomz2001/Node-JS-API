@@ -490,6 +490,7 @@ Provider.showReqService = (provider_id) => {
           ass.service_id,
           ass.service_name,
           rs.service_price,
+          rs.status_work,
           p.provider_id,
           p.provider_firstname,
           p.provider_lastname
@@ -584,10 +585,10 @@ Provider.showJob = (users_id) => {
   });
 };
 
-Provider.cancelJob = (usersId, districtId, serviceId, petId) => {
+Provider.cancelJob = (usersId, districtId, serviceId, petId, service_price) => {
   return new Promise(async (resolve, reject) => {
     const queryString = `
-    DELETE accept_job, req_service 
+    DELETE accept_job, req_service
     FROM accept_job
     JOIN req_service ON accept_job.users_id = req_service.users_id
     AND accept_job.district_id = req_service.district_id
@@ -596,11 +597,12 @@ Provider.cancelJob = (usersId, districtId, serviceId, petId) => {
     WHERE accept_job.users_id = ?
       AND accept_job.district_id = ?
       AND accept_job.service_id = ?
-      AND accept_job.pet_id = ?;
+      AND accept_job.pet_id = ?
+      AND accept_job.service_price = ?;
     `;
     db.query(
       queryString,
-      [usersId, districtId, serviceId, petId],
+      [usersId, districtId, serviceId, petId, service_price],
       (err, result) => {
         if (err) {
           reject(err);
@@ -650,9 +652,11 @@ Provider.showPaymentState = (payment) => {
         ass.service_name,
         aj.service_price,
         CONCAT("/api/get-payment-file\?filename=", aj.payment) as payment,
+        aj.job_complete,
         p.provider_id,
         p.provider_firstname,
-        p.provider_lastname
+        p.provider_lastname,
+        p.provider_phone
       FROM
         accept_job aj
       INNER JOIN
@@ -678,5 +682,57 @@ Provider.showPaymentState = (payment) => {
     });
   });
 };
+
+Provider.updateReq = (status_work, providerId, districtId, petId, serviceId,service_price, usersId) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    UPDATE req_service
+    SET status_work = ?
+    WHERE provider_id = ?
+    AND district_id = ?
+    AND pet_id = ?
+    AND service_id = ?
+    AND service_price = ?
+    AND users_id = ?;
+    `;
+    db.query(
+      queryString,
+      [status_work, providerId, districtId, petId, serviceId,service_price, usersId],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
+Provider.jobComplete = (job_complete, providerId, districtId, petId, serviceId,service_price, usersId) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    UPDATE accept_job
+    SET job_complete = ?
+    WHERE provider_id = ?
+    AND district_id = ?
+    AND pet_id = ?
+    AND service_id = ?
+    AND service_price = ?
+    AND users_id = ?;
+    `;
+    db.query(
+      queryString,
+      [job_complete, providerId, districtId, petId, serviceId,service_price, usersId],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
+
 
 module.exports = Provider;
