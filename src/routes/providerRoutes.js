@@ -75,4 +75,8 @@ module.exports = (app) => {
     app.put("/api/update-status-work", provider.putStatusWork);
 
     app.put("/api/job-complete-status", provider.jobComplete);
+
+    app.put("/api/put-status-payment", provider.putStatusPayment);
+
+    app.post("/api/review-job", provider.reviewProviderJob)
   };

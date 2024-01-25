@@ -437,5 +437,31 @@ exports.jobComplete = async (req, res) => {
   }
 };
 
+exports.putStatusPayment = async (req, res) => {
+  try {
+    const { payment_status, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Provider.paymentStatus(payment_status, providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status updated successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.reviewProviderJob = async (req, res) => {
+  try {
+    const { providerId, usersId, review_text, ratings } = req.body;
+    await Provider.reviewJob(providerId, usersId, review_text, ratings);
+
+    res.status(200).send("ok");
+  } catch (err) {
+    res.status(400).send(err);
+  }
+};
+
 
 

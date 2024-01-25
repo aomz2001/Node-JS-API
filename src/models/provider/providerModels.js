@@ -556,6 +556,7 @@ Provider.showJob = (users_id) => {
         ass.service_id,
         ass.service_name,
         aj.service_price,
+        aj.payment_status,
         p.provider_id,
         p.provider_firstname,
         p.provider_lastname
@@ -733,6 +734,44 @@ Provider.jobComplete = (job_complete, providerId, districtId, petId, serviceId,s
   });
 };
 
+Provider.paymentStatus = (payment_status, providerId, districtId, petId, serviceId,service_price, usersId) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    UPDATE accept_job
+    SET payment_status = ?
+    WHERE provider_id = ?
+    AND district_id = ?
+    AND pet_id = ?
+    AND service_id = ?
+    AND service_price = ?
+    AND users_id = ?;
+    `;
+    db.query(
+      queryString,
+      [payment_status, providerId, districtId, petId, serviceId,service_price, usersId],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
 
+Provider.reviewJob = ([providerId, usersId, review_text, ratings]) => {
+  return new Promise(async (resolve, reject) => {
+    db.query(
+      "INSERT INTO `review` ( `provider_id`, `users_id`, `review_text`, `ratings`) VALUES ( ?, ?, ?, ? );",
+      [providerId, usersId, review_text, ratings],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
 
 module.exports = Provider;
