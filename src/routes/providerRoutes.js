@@ -78,5 +78,9 @@ module.exports = (app) => {
 
     app.put("/api/put-status-payment", provider.putStatusPayment);
 
-    app.post("/api/review-job", provider.reviewProviderJob)
+    app.post("/api/review-job", provider.reviewProviderJob);
+
+    app.put("/api/report-provider", provider.putReportMessage);
+
+    app.get("/api/get-review", provider.showUserReview)
   };

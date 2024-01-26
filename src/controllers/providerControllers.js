@@ -454,14 +454,44 @@ exports.putStatusPayment = async (req, res) => {
 
 exports.reviewProviderJob = async (req, res) => {
   try {
-    const { providerId, usersId, review_text, ratings } = req.body;
-    await Provider.reviewJob(providerId, usersId, review_text, ratings);
-
+    const { providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings } = req.body;
+    await Provider.reviewJob(providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings);
     res.status(200).send("ok");
   } catch (err) {
     res.status(400).send(err);
   }
 };
 
+exports.putReportMessage = async (req, res) => {
+  try {
+    const { report,providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Provider.reportProvider(report,providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status Report Message successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
+exports.showUserReview = async (req, res) => {
+  try {
+    const { provider_id } = req.query;
+    const result = await Provider.showReview(provider_id);
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: 'No data found' });
+    }
+
+    res.status(200).send({
+      data: result,
+      message: 'Data retrieved successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
 

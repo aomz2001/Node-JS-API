@@ -759,11 +759,11 @@ Provider.paymentStatus = (payment_status, providerId, districtId, petId, service
   });
 };
 
-Provider.reviewJob = ([providerId, usersId, review_text, ratings]) => {
+Provider.reviewJob = (providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings) => {
   return new Promise(async (resolve, reject) => {
     db.query(
-      "INSERT INTO `review` ( `provider_id`, `users_id`, `review_text`, `ratings`) VALUES ( ?, ?, ?, ? );",
-      [providerId, usersId, review_text, ratings],
+      "INSERT INTO `review` ( `provider_id`, `users_id`,`district_id`, `pet_id`, `service_id`, `service_price`,`review_text`, `ratings`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? );",
+      [providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings],
       (err, result) => {
         if (err) {
           reject(err);
@@ -771,6 +771,58 @@ Provider.reviewJob = ([providerId, usersId, review_text, ratings]) => {
         resolve(result);
       }
     );
+  });
+};
+
+Provider.reportProvider = ( report,providerId, districtId, petId, serviceId,service_price, usersId ) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    UPDATE review
+    SET report = ?
+    WHERE provider_id = ?
+    AND district_id = ?
+    AND pet_id = ?
+    AND service_id = ?
+    AND service_price = ?
+    AND users_id = ?;
+    `;
+    db.query(
+      queryString,
+      [ report,providerId, districtId, petId, serviceId,service_price, usersId],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
+Provider.showReview = (provider_id) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    SELECT
+        u.users_id,
+        u.users_firstname,
+        u.users_lastname,
+        p.provider_id,
+        r.*
+      FROM
+        review r
+      INNER JOIN
+        users u ON r.users_id = u.users_id
+      INNER JOIN
+        provider p ON r.provider_id = p.provider_id
+      WHERE
+      p.provider_id =?;
+    `;
+    db.query(queryString,[provider_id],(err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
   });
 };
 
