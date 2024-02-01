@@ -1,0 +1,1 @@
+SELECT s.service_name, ps.service_price, ps.booking_start, ps.booking_end FROM admin_service_service s INNER JOIN provider_service ps ON ps.service_id = s.service_id AND ps.provider_id = 10 WHERE now() <= ps.booking_end

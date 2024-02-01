@@ -82,5 +82,13 @@ module.exports = (app) => {
 
     app.put("/api/report-provider", provider.putReportMessage);
 
-    app.get("/api/get-review", provider.showUserReview)
+    app.get("/api/get-review", provider.showUserReview);
+
+    app.post("/api/search-provider", provider.findProvider);
+
+    app.get("/api/search-provider", provider.findProvider);
+
+    app.delete("/api/understand-job-cancel", provider.understandJobCancel);
+
+    app.put("/api/users-cancel-job", provider.usersCancelJob);
   };

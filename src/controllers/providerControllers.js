@@ -175,6 +175,8 @@ exports.showProviderService = async (req, res) => {
     const service = joinedService.map((i) => ({
       service_name: i.service_name,
       service_price: i.service_price,
+      booking_start: i.booking_start,
+      booking_end: i.booking_end,
     }));
     res.status(200).send({
       serviceList,
@@ -190,8 +192,8 @@ exports.putProviderService = async (req, res) => {
     const { providerId } = req.params;
     const { serviceList } = req.body;
     await Provider.BeforePutProviderService(providerId);
-    for (let { service_id, service_price } of serviceList) {
-      await Provider.putProviderService(providerId, service_id, service_price);
+    for (let { service_id, service_price, booking_start, booking_end } of serviceList) {
+      await Provider.putProviderService(providerId, service_id, service_price, booking_start, booking_end);
     }
     res.status(200).send("ok");
   } catch (err) {
@@ -261,8 +263,8 @@ exports.providerProfile = async (req, res) => {
 
 exports.reqProviderService = async (req, res) => {
   try {
-    const { provider_id, district_id, pet_id, service_id,service_price, users_id } = req.body;
-    await Provider.reqService(provider_id, district_id, pet_id, service_id,service_price, users_id);
+    const { provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second } = req.body;
+    await Provider.reqService(provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second);
 
     res.status(200).send("ok");
   } catch (err) {
@@ -302,8 +304,8 @@ exports.deleteReqService = async (req, res) => {
 
 exports.acceptJobUsers = async (req, res) => {
   try {
-    const { provider_id, district_id, pet_id, service_id,service_price, users_id } = req.body;
-    await Provider.acceptJob(provider_id, district_id, pet_id, service_id,service_price, users_id);
+    const { provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel } = req.body;
+    await Provider.acceptJob(provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel);
 
     res.status(200).send("ok");
   } catch (err) {
@@ -331,8 +333,8 @@ exports.showAcceptService = async (req, res) => {
 
 exports.deleteAcceptService = async (req, res) => {
   try {
-    const { usersId, districtId, serviceId, petId, service_price } = req.body; 
-    await Provider.cancelJob(usersId, districtId, serviceId, petId,service_price);
+    const { providerId, districtId, petId, serviceId, service_price, usersId } = req.body; 
+    await Provider.cancelJob(providerId, districtId, petId, serviceId, service_price, usersId);
 
     res.status(200).send("Service deleted successfully");
   } catch (err) {
@@ -495,3 +497,46 @@ exports.showUserReview = async (req, res) => {
   }
 };
 
+exports.findProvider = async (req, res) => {
+  try {
+    const { firstname, lastname } = req.method === 'POST' ? req.body : req.query;
+
+    const result = await Provider.findProvider(firstname, lastname);
+
+    if (result.length > 0) {
+      res.status(200).json({ success: true, data: result });
+    } else {
+      res.status(404).json({ success: false, message: "No data found" });
+    }
+  } catch (error) {
+    console.error("Error in findProvider:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.understandJobCancel = async (req, res) => {
+  try {
+    const { providerId, districtId, petId, serviceId, service_price, usersId, provider_cancel } = req.body; 
+    await Provider.understandJobCancel(providerId, districtId, petId, serviceId, service_price, usersId, provider_cancel);
+
+    res.status(200).send("Request service deleted successfully");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.usersCancelJob = async (req, res) => {
+  try {
+    const { users_cancel, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Provider.usersCancelJob(users_cancel, providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status Report Message successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};

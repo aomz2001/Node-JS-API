@@ -6,6 +6,7 @@ const DBconnection = mysql.createConnection({
   user: dbConfig.USER,
   database: dbConfig.DB,
   debug: true,
+  timezone:"Asia/Bangkok"
 });
 
 // open the MySQL DBconnection
