@@ -1,23 +1,26 @@
-module.exports = app => {
+const express = require('express');
+const authMiddleware = require("../middleware/authMiddleware");
+   
+const router = express.Router();
+
     const admin = require("../controllers/adminControllers");
-  
-    app.post("/district", admin.createDistrict);
-    app.post("/pet", admin.createPet);
-    app.post("/price", admin.createPrice);
-    app.post("/service", admin.createService);
 
-    app.get("/district", admin.showDistrict);
-    app.get("/pet", admin.showPet);
-    app.get("/price", admin.showPrice);
-    app.get("/service", admin.showService);
+    router.post("/district",authMiddleware, admin.createDistrict);
+    router.post("/pet",authMiddleware, admin.createPet);
+    router.post("/price",authMiddleware, admin.createPrice);
+    router.post("/service",authMiddleware, admin.createService);
 
-    app.put("/district/:districtId", admin.updateDistrict);
-    app.put("/pet/:petId", admin.updatePet);
-    app.put("/price/:priceId", admin.updatePrice);
-    app.put("/service/:serviceId", admin.updateService);
+    router.put("/district/:districtId",authMiddleware, admin.updateDistrict);
+    router.put("/pet/:petId",authMiddleware, admin.updatePet);
+    router.put("/price/:priceId",authMiddleware, admin.updatePrice);
+    router.put("/service/:serviceId",authMiddleware, admin.updateService);
 
-    app.delete("/district/:districtId", admin.deleteDistrict);
-    app.delete("/pet/:petId", admin.deletePet);
-    app.delete("/price/:priceId", admin.deletePrice);
-    app.delete("/service/:serviceId", admin.deleteService);
-  };
+    router.delete("/district/:districtId",authMiddleware, admin.deleteDistrict);
+    router.delete("/pet/:petId",authMiddleware, admin.deletePet);
+    router.delete("/price/:priceId",authMiddleware, admin.deletePrice);
+    router.delete("/service/:serviceId",authMiddleware, admin.deleteService);
+
+    router.put("/api/put-status-payment",authMiddleware, admin.putStatusPayment);
+    router.put("/api/update-status-work",authMiddleware, admin.putStatusWork);
+
+module.exports = router;

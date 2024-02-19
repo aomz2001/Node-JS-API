@@ -1,7 +1,7 @@
 const Provider = require("../models/provider/providerModels");
-const generatePayload = require('promptpay-qr');
-const qrcode = require('qrcode');
-const fs = require('fs/promises');
+// const generatePayload = require('promptpay-qr');
+// const qrcode = require('qrcode');
+// const fs = require('fs/promises');
 const path = require('path');
 
 exports.create = (req, res) => {
@@ -217,27 +217,6 @@ exports.providerAllService = async (req, res) => {
   }
 };
 
-exports.providerSearch = async (req, res) => {
-  try {
-    const { district_id, pet_id, service_id } = req.body;
-
-    const result = await Provider.searchProvider(
-      district_id,
-      pet_id,
-      service_id
-    );
-
-    if (result.length > 0) {
-      res.status(200).json({ success: true, data: result });
-    } else {
-      res.status(404).json({ success: false, message: "No data found" });
-    }
-  } catch (error) {
-    console.error("Error in providerSearch:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
 exports.providerProfile = async (req, res) => {
   try {
     const { district_id, pet_id, service_id, provider_id } = req.body;
@@ -257,18 +236,6 @@ exports.providerProfile = async (req, res) => {
   } catch (error) {
     console.error("Error in providerProfile:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
-
-exports.reqProviderService = async (req, res) => {
-  try {
-    const { provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second } = req.body;
-    await Provider.reqService(provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second);
-
-    res.status(200).send("ok");
-  } catch (err) {
-    res.status(400).send(err);
   }
 };
 
@@ -310,73 +277,6 @@ exports.acceptJobUsers = async (req, res) => {
     res.status(200).send("ok");
   } catch (err) {
     res.status(400).send(err);
-  }
-};
-
-exports.showAcceptService = async (req, res) => {
-  try {
-    const { users_id } = req.query;
-    const result = await Provider.showJob(users_id);
-    if (!result || result.length === 0) {
-      return res.status(404).json({ message: 'No data found' });
-    }
-
-    res.status(200).send({
-      data: result,
-      message: 'Data retrieved successfully',
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-};
-
-exports.deleteAcceptService = async (req, res) => {
-  try {
-    const { providerId, districtId, petId, serviceId, service_price, usersId } = req.body; 
-    await Provider.cancelJob(providerId, districtId, petId, serviceId, service_price, usersId);
-
-    res.status(200).send("Service deleted successfully");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-};
-
-exports.generateQRCode = async (req, res) => {
-  try {
-    const { mobileNumber, amount } = req.body;
-    // Create payload
-    const payload = generatePayload(mobileNumber, { amount });
-    
-    // Generate QR Code
-    const options = { type: 'svg', color: { dark: '#000', light: '#fff' } };
-    const svg = await qrcode.toString(payload, options);
-    
-    // Save QR Code to file (optional)
-    await fs.writeFile('./qr.svg', svg);
-    
-    res.status(200).send({ svg, message: 'QR Code saved to file.' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-};
-
-exports.uploadPayment = async (req, res) => {
-  try {
-    const { providerId, districtId, petId, serviceId, usersId } = req.body;
-    if (!req.file && providerId && districtId && petId && serviceId && usersId) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-    const filename = req.file.filename;
-    const result = await Provider.putUploadPayment(filename, providerId, districtId, petId, serviceId, usersId);
-    if (result && result.affectedRows > 0) {
-      res.status(200).json({ message: 'Payment uploaded successfully', data: result });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -430,108 +330,6 @@ exports.jobComplete = async (req, res) => {
     const result = await Provider.jobComplete(job_complete, providerId, districtId, petId, serviceId,service_price, usersId);
     if (result) {
       res.status(200).json({ message: 'Status updated successfully' });
-    } else {
-      res.status(404).json({ message: 'No matching record found for update' });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-exports.putStatusPayment = async (req, res) => {
-  try {
-    const { payment_status, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
-    const result = await Provider.paymentStatus(payment_status, providerId, districtId, petId, serviceId,service_price, usersId);
-    if (result) {
-      res.status(200).json({ message: 'Status updated successfully' });
-    } else {
-      res.status(404).json({ message: 'No matching record found for update' });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-exports.reviewProviderJob = async (req, res) => {
-  try {
-    const { providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings } = req.body;
-    await Provider.reviewJob(providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings);
-    res.status(200).send("ok");
-  } catch (err) {
-    res.status(400).send(err);
-  }
-};
-
-exports.putReportMessage = async (req, res) => {
-  try {
-    const { report,providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
-    const result = await Provider.reportProvider(report,providerId, districtId, petId, serviceId,service_price, usersId);
-    if (result) {
-      res.status(200).json({ message: 'Status Report Message successfully' });
-    } else {
-      res.status(404).json({ message: 'No matching record found for update' });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-exports.showUserReview = async (req, res) => {
-  try {
-    const { provider_id } = req.query;
-    const result = await Provider.showReview(provider_id);
-    if (!result || result.length === 0) {
-      return res.status(404).json({ message: 'No data found' });
-    }
-
-    res.status(200).send({
-      data: result,
-      message: 'Data retrieved successfully',
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-};
-
-exports.findProvider = async (req, res) => {
-  try {
-    const { firstname, lastname } = req.method === 'POST' ? req.body : req.query;
-
-    const result = await Provider.findProvider(firstname, lastname);
-
-    if (result.length > 0) {
-      res.status(200).json({ success: true, data: result });
-    } else {
-      res.status(404).json({ success: false, message: "No data found" });
-    }
-  } catch (error) {
-    console.error("Error in findProvider:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
-exports.understandJobCancel = async (req, res) => {
-  try {
-    const { providerId, districtId, petId, serviceId, service_price, usersId, provider_cancel } = req.body; 
-    await Provider.understandJobCancel(providerId, districtId, petId, serviceId, service_price, usersId, provider_cancel);
-
-    res.status(200).send("Request service deleted successfully");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-};
-
-exports.usersCancelJob = async (req, res) => {
-  try {
-    const { users_cancel, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
-    const result = await Provider.usersCancelJob(users_cancel, providerId, districtId, petId, serviceId,service_price, usersId);
-    if (result) {
-      res.status(200).json({ message: 'Status Report Message successfully' });
     } else {
       res.status(404).json({ message: 'No matching record found for update' });
     }

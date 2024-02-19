@@ -1,7 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require('cors');
-
+const adminRoutes = require("./src/routes/adminRoutes");
+const userRoutes = require("./src/routes/userRoutes");
+const providerRoutes = require("./src/routes/providerRoutes");
+const publicRoutes = require("./src/routes/publicRoutes/publicRoutes");
 const app = express();
 
 // parse requests of content-type: application/json
@@ -20,13 +23,15 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+
 app.get("/", (req, res) => {
   res.json({ message: "Back-end API" });
 });
 
-require("./src/routes/userRoutes")(app);
-require("./src/routes/adminRoutes")(app);
-require("./src/routes/providerRoutes")(app);
+app.use('/admin', adminRoutes);
+app.use('/user', userRoutes);
+app.use('/provider', providerRoutes);
+app.use('/public', publicRoutes);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000...");

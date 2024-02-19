@@ -1,94 +1,35 @@
-module.exports = (app) => {
-    const provider = require("../controllers/providerControllers");
-    const multer = require("multer");
-    const storage = multer.diskStorage({
-      destination: function (req, file, cb) {
-        cb(null, "./tmp");
-      },
-      filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        const filename = file.originalname.split(".")[0] +
-        "-" +
-        uniqueSuffix +
-        "." +
-        file.mimetype.split("/")[1]
-        req.query.filename = filename
-        cb(
-          null,
-          filename
-        );
-      },
-    });
-    const upload = multer({ storage: storage });
-    app.post("/signup-provider", provider.create);
-  
-    app.post("/login-provider", provider.login);
-  
-    app.get("/provider-data", provider.showProviderData);
-  
-    app.put("/provider-data/:updateId", provider.updateProviderData);
-  
-    app.delete("/provider-data/:deleteId", provider.deleteProviderData);
-  
-    app.get("/provider-data-district/:providerId", provider.showProviderDistrict);
-  
-    app.put("/provider-data-district/:providerId", provider.putProviderDistrict);
-  
-    app.get("/provider-data-pet/:providerId", provider.showProviderPet);
-  
-    app.put("/provider-data-pet/:providerId", provider.putProviderPet);
-  
-    app.get("/provider-data-service/:providerId", provider.showProviderService);
-  
-    app.put("/provider-data-service/:providerId", provider.putProviderService);
-  
-    app.get("/api/provider-all-service", provider.providerAllService);
-  
-    app.post("/api/provider-search", provider.providerSearch);
-  
-    app.post("/api/provider-data", provider.providerProfile);
-  
-    app.post("/api/req-service", provider.reqProviderService);
-  
-    app.get("/api/show-req-service", provider.showReqService);
-  
-    app.delete("/api/delete-req-service", provider.deleteReqService);
-  
-    app.post("/api/accept-service", provider.acceptJobUsers);
-  
-    app.get("/api/show-accept-service", provider.showAcceptService);
-  
-    app.delete("/api/delete-accept-service", provider.deleteAcceptService);
-  
-    app.post("/api/generate-qr", provider.generateQRCode);
-  
-    app.put(
-      "/api/upload-payment",
-      upload.single("file"),
-      provider.uploadPayment
-    );
+const express = require('express');
+const authMiddleware = require("../middleware/authMiddleware");
 
-    app.get("/api/show-payment-state", provider.readFile);
+const router = express.Router();
+const provider = require("../controllers/providerControllers");
 
-    app.get("/api/get-payment-file", provider.getPaymentFile);
+    router.get("/provider-data",authMiddleware, provider.showProviderData);
+  
+    router.put("/provider-data/:updateId",authMiddleware, provider.updateProviderData);
+  
+    router.delete("/provider-data/:deleteId",authMiddleware, provider.deleteProviderData);
+  
+    router.get("/provider-data-district/:providerId",authMiddleware, provider.showProviderDistrict);
+  
+    router.put("/provider-data-district/:providerId",authMiddleware, provider.putProviderDistrict);
+  
+    router.get("/provider-data-pet/:providerId",authMiddleware, provider.showProviderPet);
+  
+    router.put("/provider-data-pet/:providerId",authMiddleware, provider.putProviderPet);
+  
+    router.get("/provider-data-service/:providerId",authMiddleware, provider.showProviderService);
+  
+    router.put("/provider-data-service/:providerId",authMiddleware, provider.putProviderService);
+  
+    router.get("/api/provider-all-service",authMiddleware, provider.providerAllService);
+  
+    router.get("/api/show-req-service",authMiddleware, provider.showReqService);
+  
+    router.delete("/api/delete-req-service",authMiddleware, provider.deleteReqService);
+  
+    router.post("/api/accept-service",authMiddleware, provider.acceptJobUsers);
 
-    app.put("/api/update-status-work", provider.putStatusWork);
+    router.put("/api/job-complete-status",authMiddleware, provider.jobComplete);
 
-    app.put("/api/job-complete-status", provider.jobComplete);
-
-    app.put("/api/put-status-payment", provider.putStatusPayment);
-
-    app.post("/api/review-job", provider.reviewProviderJob);
-
-    app.put("/api/report-provider", provider.putReportMessage);
-
-    app.get("/api/get-review", provider.showUserReview);
-
-    app.post("/api/search-provider", provider.findProvider);
-
-    app.get("/api/search-provider", provider.findProvider);
-
-    app.delete("/api/understand-job-cancel", provider.understandJobCancel);
-
-    app.put("/api/users-cancel-job", provider.usersCancelJob);
-  };
+module.exports = router;

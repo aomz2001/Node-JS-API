@@ -2,6 +2,7 @@ const District = require("../models/admin/districtModels");
 const Pet = require("../models/admin/petModels");
 const Price = require("../models/admin/priceModels");
 const Service = require("../models/admin/serviceModels");
+const Admin = require("../models/admin/adminModels");
 
 exports.createDistrict = (req, res) => {
     if (!req.body) {
@@ -297,3 +298,33 @@ exports.deleteService = (req, res) => {
 };
 
 //========================================================================================
+
+exports.putStatusWork = async (req, res) => {
+  try {
+    const { status_work, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Admin.updateReq(status_work, providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status updated successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.putStatusPayment = async (req, res) => {
+  try {
+    const { payment_status, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Admin.paymentStatus(payment_status, providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status updated successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
