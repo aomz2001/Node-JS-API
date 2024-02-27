@@ -65,7 +65,7 @@ Users.login = (req, res) => {
               usersId: users[0].users_id,
               isAdmin: users[0].isAdmin,
             };
-            
+
             db.query("UPDATE users SET users_cookie =? WHERE users_id=?", [
               token,
               users[0].users_id,
@@ -196,7 +196,16 @@ Users.reqService = (
   return new Promise(async (resolve, reject) => {
     db.query(
       "INSERT INTO `req_service` ( `provider_id`, `district_id`, `pet_id`, `service_id`, `service_price`, `users_id`,`booking_first`, `booking_second`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? );",
-      [provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second],
+      [
+        provider_id,
+        district_id,
+        pet_id,
+        service_id,
+        service_price,
+        users_id,
+        booking_first,
+        booking_second,
+      ],
       (err, result) => {
         if (err) {
           reject(err);
@@ -269,7 +278,7 @@ Users.showReview = (provider_id) => {
       WHERE
       p.provider_id =?;
     `;
-    db.query(queryString,[provider_id],(err, result) => {
+    db.query(queryString, [provider_id], (err, result) => {
       if (err) {
         reject(err);
       }
@@ -278,10 +287,10 @@ Users.showReview = (provider_id) => {
   });
 };
 
-Users.findProvider = (firstname, lastname) => {
+Users.findProvider = (firstname, lastname, id) => {
   return new Promise(async (resolve, reject) => {
     const queryString = `
-    SELECT 
+    SELECT DISTINCT
       p.provider_id, 
       p.provider_firstname, 
       p.provider_lastname, 
@@ -304,15 +313,20 @@ Users.findProvider = (firstname, lastname) => {
     WHERE CONCAT(p.provider_firstname, ' ', p.provider_lastname) = ?
     OR CONCAT(p.provider_firstname, p.provider_lastname) = ?
     OR p.provider_firstname = ?
-    OR p.provider_lastname = ?;
+    OR p.provider_lastname = ?
+    OR p.provider_id = ?;
     `;
 
-    db.query(queryString, [firstname, lastname, firstname, lastname], (err, result) => {
-      if (err) {
-        reject(err);
+    db.query(
+      queryString,
+      [firstname, lastname, firstname, lastname, id],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
       }
-      resolve(result);
-    });
+    );
   });
 };
 
@@ -361,7 +375,14 @@ Users.showJob = (users_id) => {
   });
 };
 
-Users.cancelJob = (providerId, districtId, petId, serviceId, service_price, usersId) => {
+Users.cancelJob = (
+  providerId,
+  districtId,
+  petId,
+  serviceId,
+  service_price,
+  usersId
+) => {
   return new Promise(async (resolve, reject) => {
     const queryString = `
     DELETE
@@ -386,7 +407,15 @@ Users.cancelJob = (providerId, districtId, petId, serviceId, service_price, user
   });
 };
 
-Users.reportProvider = ( report,providerId, districtId, petId, serviceId,service_price, usersId ) => {
+Users.reportProvider = (
+  report,
+  providerId,
+  districtId,
+  petId,
+  serviceId,
+  service_price,
+  usersId
+) => {
   return new Promise(async (resolve, reject) => {
     const queryString = `
     UPDATE accept_job
@@ -400,7 +429,15 @@ Users.reportProvider = ( report,providerId, districtId, petId, serviceId,service
     `;
     db.query(
       queryString,
-      [ report,providerId, districtId, petId, serviceId,service_price, usersId],
+      [
+        report,
+        providerId,
+        districtId,
+        petId,
+        serviceId,
+        service_price,
+        usersId,
+      ],
       (err, result) => {
         if (err) {
           reject(err);
@@ -411,7 +448,15 @@ Users.reportProvider = ( report,providerId, districtId, petId, serviceId,service
   });
 };
 
-Users.understandJobCancel = (providerId, districtId, petId, serviceId, service_price, usersId, provider_cancel) => {
+Users.understandJobCancel = (
+  providerId,
+  districtId,
+  petId,
+  serviceId,
+  service_price,
+  usersId,
+  provider_cancel
+) => {
   return new Promise(async (resolve, reject) => {
     const queryString = `
     DELETE FROM accept_job
@@ -425,7 +470,15 @@ Users.understandJobCancel = (providerId, districtId, petId, serviceId, service_p
     `;
     db.query(
       queryString,
-      [providerId, districtId, petId, serviceId, service_price, usersId, provider_cancel],
+      [
+        providerId,
+        districtId,
+        petId,
+        serviceId,
+        service_price,
+        usersId,
+        provider_cancel,
+      ],
       (err, result) => {
         if (err) {
           reject(err);
@@ -436,7 +489,15 @@ Users.understandJobCancel = (providerId, districtId, petId, serviceId, service_p
   });
 };
 
-Users.usersCancelJob = ( users_cancel, providerId, districtId, petId, serviceId,service_price, usersId ) => {
+Users.usersCancelJob = (
+  users_cancel,
+  providerId,
+  districtId,
+  petId,
+  serviceId,
+  service_price,
+  usersId
+) => {
   return new Promise(async (resolve, reject) => {
     const queryString = `
     UPDATE req_service
@@ -450,7 +511,15 @@ Users.usersCancelJob = ( users_cancel, providerId, districtId, petId, serviceId,
     `;
     db.query(
       queryString,
-      [ users_cancel, providerId, districtId, petId, serviceId,service_price, usersId ],
+      [
+        users_cancel,
+        providerId,
+        districtId,
+        petId,
+        serviceId,
+        service_price,
+        usersId,
+      ],
       (err, result) => {
         if (err) {
           reject(err);
@@ -461,7 +530,14 @@ Users.usersCancelJob = ( users_cancel, providerId, districtId, petId, serviceId,
   });
 };
 
-Users.putUploadPayment = (payment, providerId, districtId, petId, serviceId, usersId) => {
+Users.putUploadPayment = (
+  payment,
+  providerId,
+  districtId,
+  petId,
+  serviceId,
+  usersId
+) => {
   return new Promise(async (resolve, reject) => {
     const queryString = `
     UPDATE accept_job
@@ -523,7 +599,7 @@ Users.showPaymentState = (payment) => {
       WHERE
         aj.payment IS NOT NULL AND aj.payment != "";
     `;
-    db.query(queryString,(err, result) => {
+    db.query(queryString, (err, result) => {
       if (err) {
         reject(err);
       }
@@ -532,11 +608,29 @@ Users.showPaymentState = (payment) => {
   });
 };
 
-Users.reviewJob = (providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings) => {
+Users.reviewJob = (
+  providerId,
+  usersId,
+  districtId,
+  petId,
+  serviceId,
+  service_price,
+  review_text,
+  ratings
+) => {
   return new Promise(async (resolve, reject) => {
     db.query(
       "INSERT INTO `review` ( `provider_id`, `users_id`,`district_id`, `pet_id`, `service_id`, `service_price`,`review_text`, `ratings`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? );",
-      [providerId, usersId, districtId, petId, serviceId, service_price, review_text, ratings],
+      [
+        providerId,
+        usersId,
+        districtId,
+        petId,
+        serviceId,
+        service_price,
+        review_text,
+        ratings,
+      ],
       (err, result) => {
         if (err) {
           reject(err);

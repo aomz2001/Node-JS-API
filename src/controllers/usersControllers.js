@@ -166,9 +166,9 @@ exports.showUserReview = async (req, res) => {
 
 exports.findProvider = async (req, res) => {
   try {
-    const { firstname, lastname } = req.method === 'POST' ? req.body : req.query;
+    const { firstname, lastname, id } = req.method === 'POST' ? req.body : req.query;
 
-    const result = await Users.findProvider(firstname, lastname);
+    const result = await Users.findProvider(firstname, lastname, id);
 
     if (result.length > 0) {
       res.status(200).json({ success: true, data: result });
