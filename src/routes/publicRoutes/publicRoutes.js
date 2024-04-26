@@ -10,6 +10,7 @@ const admin = require("../../controllers/adminControllers");
   router.post("/api/provider-search", users.providerSearch);
   router.post("/api/provider-data", users.providerProfile);
   router.get("/api/get-review", users.showUserReview);
+  router.get("/api/get-avg-ratings", users.avgRatings);
   
   router.post("/signup-provider", provider.create);
   router.post("/login-provider", provider.login);

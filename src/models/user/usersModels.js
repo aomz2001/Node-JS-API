@@ -191,11 +191,13 @@ Users.reqService = (
   service_price,
   users_id,
   booking_first,
-  booking_second
+  booking_second,
+  time_first,
+  time_second
 ) => {
   return new Promise(async (resolve, reject) => {
     db.query(
-      "INSERT INTO `req_service` ( `provider_id`, `district_id`, `pet_id`, `service_id`, `service_price`, `users_id`,`booking_first`, `booking_second`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? );",
+      "INSERT INTO `req_service` ( `provider_id`, `district_id`, `pet_id`, `service_id`, `service_price`, `users_id`,`booking_first`, `booking_second`,`time_first`, `time_second`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );",
       [
         provider_id,
         district_id,
@@ -205,6 +207,8 @@ Users.reqService = (
         users_id,
         booking_first,
         booking_second,
+        time_first,
+        time_second
       ],
       (err, result) => {
         if (err) {
@@ -638,6 +642,23 @@ Users.reviewJob = (
         resolve(result);
       }
     );
+  });
+};
+
+Users.avgRatings = (provider_id) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    SELECT provider_id, AVG(ratings) AS avg_rating
+    FROM review
+    WHERE provider_id = ?
+    GROUP BY provider_id;
+    `;
+    db.query(queryString, [provider_id], (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
   });
 };
 

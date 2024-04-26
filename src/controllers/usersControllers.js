@@ -115,8 +115,8 @@ exports.providerSearch = async (req, res) => {
 
 exports.reqProviderService = async (req, res) => {
   try {
-    const { provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second } = req.body;
-    await Users.reqService(provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second);
+    const { provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second,time_first,time_second } = req.body;
+    await Users.reqService(provider_id, district_id, pet_id, service_id, service_price, users_id,booking_first,booking_second,time_first,time_second);
 
     res.status(200).send("ok");
   } catch (err) {
@@ -326,5 +326,23 @@ exports.reviewProviderJob = async (req, res) => {
     res.status(200).send("ok");
   } catch (err) {
     res.status(400).send(err);
+  }
+};
+
+exports.avgRatings = async (req, res) => {
+  try {
+    const { provider_id } = req.query;
+    const result = await Users.avgRatings(provider_id);
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: 'No data found' });
+    }
+
+    res.status(200).send({
+      data: result,
+      message: 'Data retrieved successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
   }
 };

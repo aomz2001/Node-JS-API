@@ -394,6 +394,8 @@ Provider.showReqService = (provider_id) => {
         rs.status_work,
         rs.booking_first,
         rs.booking_second,
+        rs.time_first,
+        rs.time_second,
         rs.users_cancel,
         p.provider_id,
         p.provider_firstname,
