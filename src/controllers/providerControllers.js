@@ -271,8 +271,8 @@ exports.deleteReqService = async (req, res) => {
 
 exports.acceptJobUsers = async (req, res) => {
   try {
-    const { provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel } = req.body;
-    await Provider.acceptJob(provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel);
+    const { provider_id, district_id, pet_id, service_id, service_price, users_id, confirm_work } = req.body;
+    await Provider.acceptJob(provider_id, district_id, pet_id, service_id, service_price, users_id ,confirm_work);
 
     res.status(200).send("ok");
   } catch (err) {
@@ -336,5 +336,58 @@ exports.jobComplete = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.UploadProfile = async (req, res) => {
+  try {
+    const { providerId } = req.body;
+    if (!req.file && providerId ) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const filename = req.file.filename;
+    const result = await Provider.UploadProfile(filename, providerId);
+    if (result && result.affectedRows > 0) {
+      res.status(200).json({ message: 'Payment uploaded successfully', data: result });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.readProfile = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    const result = await Provider.showProfile(providerId);
+    res.status(200).send({
+      data: result,
+      message: 'Data retrieved successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.getProfile= async (req, res) => {
+  try {
+    const { filename } = req.query;
+    const tmpFolder = path.join(__dirname.replace("\\src\\controllers", ""), 'tmp');
+    res.sendFile(path.join(tmpFolder, filename))
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.updateJobstatus = async (req, res) => {
+  try {
+    const { provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel } = req.body;
+    await Provider.updateJobstatus(provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel);
+
+    res.status(200).send("ok");
+  } catch (err) {
+    res.status(400).send(err);
   }
 };

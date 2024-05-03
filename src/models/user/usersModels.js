@@ -55,7 +55,7 @@ Users.login = (req, res) => {
               { users_email: users[0].users_email },
               secret,
               {
-                expiresIn: "1h",
+                expiresIn: "6h",
               }
             );
             const response = {
@@ -152,7 +152,8 @@ Users.searchProvider = (district_id, pet_id, service_id) => {
     SELECT 
       p.provider_id, 
       p.provider_firstname, 
-      p.provider_lastname, 
+      p.provider_lastname,
+      p.provider_profile,
       pd.district_id, 
       asd.district_name, 
       asp.pet_id, 
@@ -227,6 +228,7 @@ Users.providerProfile = (district_id, pet_id, service_id, provider_id) => {
       p.provider_id, 
       p.provider_firstname, 
       p.provider_lastname, 
+      p.provider_profile,
       pd.district_id, 
       asd.district_name, 
       asp.pet_id, 
@@ -297,7 +299,8 @@ Users.findProvider = (firstname, lastname, id) => {
     SELECT DISTINCT
       p.provider_id, 
       p.provider_firstname, 
-      p.provider_lastname, 
+      p.provider_lastname,
+      p.provider_profile, 
       pd.district_id, 
       asd.district_name, 
       asp.pet_id, 
@@ -350,9 +353,12 @@ Users.showJob = (users_id) => {
           aj.service_price,
           aj.payment_status,
           aj.provider_cancel,
+          aj.payment,
+          aj.cash_back,
           p.provider_id,
           p.provider_firstname,
-          p.provider_lastname
+          p.provider_lastname,
+          p.provider_profile
       FROM
           accept_job aj
       LEFT JOIN
@@ -659,6 +665,88 @@ Users.avgRatings = (provider_id) => {
       }
       resolve(result);
     });
+  });
+};
+
+Users.UploadProfile = (
+  users_profile,
+  usersId
+) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    UPDATE users
+    SET users_profile = ?
+    WHERE users_id = ?;
+    `;
+    db.query(
+      queryString,
+      [users_profile, usersId],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
+Users.showProfile = (usersId) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    SELECT 
+    users_id,
+    CONCAT("/api/get-users-profile\?filename=", users_profile) as users_profile 
+    FROM users u
+    WHERE u.users_profile IS NOT NULL AND u.users_profile != "";
+    `;
+    db.query(queryString,[usersId],(err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
+Users.usersCashback = (
+  cash_back,
+  providerId,
+  districtId,
+  petId,
+  serviceId,
+  service_price,
+  usersId
+) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    UPDATE accept_job
+    SET cash_back = ?
+    WHERE provider_id = ?
+    AND district_id = ?
+    AND pet_id = ?
+    AND service_id = ?
+    AND service_price = ?
+    AND users_id = ?;
+    `;
+    db.query(
+      queryString,
+      [
+        cash_back,
+        providerId,
+        districtId,
+        petId,
+        serviceId,
+        service_price,
+        usersId,
+      ],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
   });
 };
 

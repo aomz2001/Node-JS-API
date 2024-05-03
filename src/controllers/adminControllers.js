@@ -328,3 +328,15 @@ exports.putStatusPayment = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+exports.clearWorklist = async (req, res) => {
+  try {
+    const { usersId, districtId, serviceId, petId, service_price } = req.body; 
+    await Admin.clearWorklist(usersId, districtId, serviceId, petId, service_price);
+
+    res.status(200).send("Request service deleted successfully");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};

@@ -11,11 +11,15 @@ const admin = require("../../controllers/adminControllers");
   router.post("/api/provider-data", users.providerProfile);
   router.get("/api/get-review", users.showUserReview);
   router.get("/api/get-avg-ratings", users.avgRatings);
+  router.get("/api/read-users-profile", users.readProfile);
+  router.get("/api/get-users-profile", users.getProfile);
   
   router.post("/signup-provider", provider.create);
   router.post("/login-provider", provider.login);
   router.get("/api/show-payment-state", provider.readFile);
   router.get("/api/get-payment-file", provider.getPaymentFile);
+  router.get("/api/read-provider-profile", provider.readProfile);
+  router.get("/api/get-provider-profile", provider.getProfile);
 
   router.get("/district", admin.showDistrict);
   router.get("/pet", admin.showPet);

@@ -59,4 +59,19 @@ const Admin = function (users) {
     });
   };
 
+  Admin.clearWorklist = (usersId, districtId, serviceId, petId, service_price) => {
+    return new Promise(async (resolve, reject) => {
+      db.query(
+        "DELETE FROM `accept_job` WHERE users_id = ? AND district_id = ? AND service_id = ? AND pet_id = ? AND service_price = ?",
+        [usersId, districtId, serviceId, petId, service_price],
+        (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  };
+
 module.exports = Admin;

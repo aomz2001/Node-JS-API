@@ -19,6 +19,7 @@ const router = express.Router();
     router.delete("/pet/:petId",authMiddleware, admin.deletePet);
     router.delete("/price/:priceId",authMiddleware, admin.deletePrice);
     router.delete("/service/:serviceId",authMiddleware, admin.deleteService);
+    router.delete("/api/clear-work-list",authMiddleware, admin.clearWorklist);
 
     router.put("/api/put-status-payment",authMiddleware, admin.putStatusPayment);
     router.put("/api/update-status-work",authMiddleware, admin.putStatusWork);

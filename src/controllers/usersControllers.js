@@ -2,6 +2,7 @@ const Users = require("../models/user/usersModels");
 const generatePayload = require('promptpay-qr');
 const qrcode = require('qrcode');
 const fs = require('fs/promises');
+const path = require('path');
 
 exports.create = (req, res) => {
   if (!req.body) {
@@ -344,5 +345,65 @@ exports.avgRatings = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.UploadProfile = async (req, res) => {
+  try {
+    const { usersId } = req.body;
+    if (!req.file && usersId ) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const filename = req.file.filename;
+    const result = await Users.UploadProfile(filename, usersId);
+    if (result && result.affectedRows > 0) {
+      res.status(200).json({ message: 'Payment uploaded successfully', data: result });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.readProfile = async (req, res) => {
+  try {
+    const { usersId } = req.params;
+    const result = await Users.showProfile(usersId);
+    res.status(200).send({
+      data: result,
+      message: 'Data retrieved successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.getProfile = async (req, res) => {
+  try {
+    const { filename } = req.query;
+    if (!filename) {
+      return res.status(400).send({ message: 'Filename is required' });
+    }
+    const tmpFolder = path.join(__dirname.replace("\\src\\controllers", ""), 'tmp');
+    res.sendFile(path.join(tmpFolder, filename));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.usersCashback = async (req, res) => {
+  try {
+    const { cash_back, providerId, districtId, petId, serviceId,service_price, usersId } = req.body;
+    const result = await Users.usersCashback(cash_back, providerId, districtId, petId, serviceId,service_price, usersId);
+    if (result) {
+      res.status(200).json({ message: 'Status Report Message successfully' });
+    } else {
+      res.status(404).json({ message: 'No matching record found for update' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
   }
 };

@@ -54,7 +54,7 @@ Provider.login = (req, res) => {
               { provider_email: provider[0].provider_email },
               secret,
               {
-                expiresIn: "1h",
+                expiresIn: "6h",
               }
             );
             const response = {
@@ -384,19 +384,14 @@ Provider.showReqService = (provider_id) => {
         u.users_lastname,
         u.users_address,
         u.users_phone,
+        u.users_profile,
         asd.district_id,
         asd.district_name,
         asp.pet_id,
         asp.pet_name,
         ass.service_id,
         ass.service_name,
-        rs.service_price,
-        rs.status_work,
-        rs.booking_first,
-        rs.booking_second,
-        rs.time_first,
-        rs.time_second,
-        rs.users_cancel,
+        rs.*,
         p.provider_id,
         p.provider_firstname,
         p.provider_lastname
@@ -433,12 +428,12 @@ Provider.acceptJob = (
   service_id,
   service_price,
   users_id,
-  provider_cancel
+  confirm_work
 ) => {
   return new Promise(async (resolve, reject) => {
     db.query(
-      "INSERT INTO `accept_job` ( `provider_id`, `district_id`, `pet_id`, `service_id`, `service_price`, `users_id`, `provider_cancel`) VALUES ( ?, ?, ?, ?, ?, ?, ? );",
-      [provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel],
+      "INSERT INTO `accept_job` ( `provider_id`, `district_id`, `pet_id`, `service_id`, `service_price`, `users_id`, confirm_work) VALUES ( ?, ?, ?, ?, ?, ?, ? );",
+      [provider_id, district_id, pet_id, service_id, service_price, users_id,confirm_work],
       (err, result) => {
         if (err) {
           reject(err);
@@ -456,6 +451,7 @@ Provider.showPaymentState = (payment) => {
         u.users_id,
         u.users_firstname,
         u.users_lastname,
+        u.users_phone,
         asd.district_id,
         asd.district_name,
         asp.pet_id,
@@ -463,6 +459,7 @@ Provider.showPaymentState = (payment) => {
         ass.service_id,
         ass.service_name,
         aj.service_price,
+        aj.cash_back,
         CONCAT("/api/get-payment-file\?filename=", aj.payment) as payment,
         aj.job_complete,
         p.provider_id,
@@ -512,6 +509,70 @@ Provider.jobComplete = (job_complete, providerId, districtId, petId, serviceId,s
     db.query(
       queryString,
       [job_complete, providerId, districtId, petId, serviceId,service_price, usersId],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
+Provider.UploadProfile = (
+  provider_profile,
+  providerId
+) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    UPDATE provider
+    SET provider_profile = ?
+    WHERE provider_id = ?;
+    `;
+    db.query(
+      queryString,
+      [provider_profile, providerId],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
+Provider.showProfile = (providerId) => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    SELECT 
+    provider_id,
+    CONCAT("/api/get-provider-profile\?filename=", provider_profile) as provider_profile 
+    FROM provider p
+    WHERE p.provider_profile IS NOT NULL AND p.provider_profile != "";
+    `;
+    db.query(queryString,[providerId],(err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
+Provider.updateJobstatus = (
+  provider_id,
+  district_id,
+  pet_id,
+  service_id,
+  service_price,
+  users_id,
+  provider_cancel
+) => {
+  return new Promise(async (resolve, reject) => {
+    db.query(
+      "INSERT INTO `accept_job` ( `provider_id`, `district_id`, `pet_id`, `service_id`, `service_price`, `users_id`, `provider_cancel`) VALUES ( ?, ?, ?, ?, ?, ?, ? );",
+      [provider_id, district_id, pet_id, service_id, service_price, users_id, provider_cancel],
       (err, result) => {
         if (err) {
           reject(err);

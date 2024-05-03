@@ -1,8 +1,26 @@
 const express = require('express');
 const authMiddleware = require("../middleware/authMiddleware");
-
+const multer = require("multer");
 const router = express.Router();
 const provider = require("../controllers/providerControllers");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./tmp");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const filename =
+      file.originalname.split(".")[0] +
+      "-" +
+      uniqueSuffix +
+      "." +
+      file.mimetype.split("/")[1];
+    req.query.filename = filename;
+    cb(null, filename);
+  },
+});
+const upload = multer({ storage: storage });
 
     router.get("/provider-data",authMiddleware, provider.showProviderData);
   
@@ -30,6 +48,15 @@ const provider = require("../controllers/providerControllers");
   
     router.post("/api/accept-service",authMiddleware, provider.acceptJobUsers);
 
+    router.put("/api/cancel-job-status",authMiddleware, provider.updateJobstatus);
+
     router.put("/api/job-complete-status",authMiddleware, provider.jobComplete);
+
+    router.put(
+        "/api/upload-provider-profile",
+        authMiddleware,
+        upload.single("file"),
+        provider.UploadProfile
+      );
 
 module.exports = router;

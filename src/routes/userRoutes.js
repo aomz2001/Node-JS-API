@@ -58,4 +58,13 @@ router.put(
 
 router.post("/api/review-job",authMiddleware, users.reviewProviderJob);
 
+router.put(
+  "/api/upload-users-profile",
+  authMiddleware,
+  upload.single("file"),
+  users.UploadProfile
+);
+
+router.put("/api/users-cash-back", authMiddleware, users.usersCashback);
+
 module.exports = router;
