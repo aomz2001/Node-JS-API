@@ -583,4 +583,21 @@ Provider.updateJobstatus = (
   });
 };
 
+Provider.showPaymentAdmin = () => {
+  return new Promise(async (resolve, reject) => {
+    const queryString = `
+    SELECT 
+    CONCAT("/api/get-provider-profile\?filename=", payment_admin) as payment_admin 
+    FROM req_service rs
+    WHERE rs.payment_admin IS NOT NULL AND rs.payment_admin != "";
+    `;
+    db.query(queryString,(err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
 module.exports = Provider;

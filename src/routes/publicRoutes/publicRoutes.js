@@ -20,6 +20,8 @@ const admin = require("../../controllers/adminControllers");
   router.get("/api/get-payment-file", provider.getPaymentFile);
   router.get("/api/read-provider-profile", provider.readProfile);
   router.get("/api/get-provider-profile", provider.getProfile);
+  router.get("/api/show-payment-admin", provider.readPaymentAdmin);
+  router.get("/api/get-payment-file-admin", provider.getPaymentAdmin);
 
   router.get("/district", admin.showDistrict);
   router.get("/pet", admin.showPet);

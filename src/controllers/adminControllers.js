@@ -3,6 +3,10 @@ const Pet = require("../models/admin/petModels");
 const Price = require("../models/admin/priceModels");
 const Service = require("../models/admin/serviceModels");
 const Admin = require("../models/admin/adminModels");
+const generatePayload = require('promptpay-qr');
+const qrcode = require('qrcode');
+const fs = require('fs/promises');
+const path = require('path');
 
 exports.createDistrict = (req, res) => {
     if (!req.body) {
@@ -340,3 +344,41 @@ exports.clearWorklist = async (req, res) => {
     res.status(500).send({ message: 'Internal Server Error' });
   }
 };
+
+exports.generateQRCodeAdmin = async (req, res) => {
+  try {
+    const { mobileNumber, amount } = req.body;
+    // Create payload
+    const payload = generatePayload(mobileNumber, { amount });
+    
+    // Generate QR Code
+    const options = { type: 'svg', color: { dark: '#000', light: '#fff' } };
+    const svg = await qrcode.toString(payload, options);
+    
+    // Save QR Code to file (optional)
+    await fs.writeFile('./qr.svg', svg);
+    
+    res.status(200).send({ svg, message: 'QR Code saved to file.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.uploadPayment = async (req, res) => {
+  try {
+    const { providerId, districtId, petId, serviceId, usersId } = req.body;
+    if (!req.file && providerId && districtId && petId && serviceId && usersId) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const filename = req.file.filename;
+    const result = await Admin.putUploadPayment(filename, providerId, districtId, petId, serviceId, usersId);
+    if (result && result.affectedRows > 0) {
+      res.status(200).json({ message: 'Payment uploaded successfully', data: result });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+

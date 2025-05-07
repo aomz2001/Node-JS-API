@@ -74,4 +74,37 @@ const Admin = function (users) {
     });
   };
 
+  Admin.putUploadPayment = (
+    payment_admin,
+    providerId,
+    districtId,
+    petId,
+    serviceId,
+    usersId
+  ) => {
+    return new Promise(async (resolve, reject) => {
+      const queryString = `
+      UPDATE req_service
+      SET payment_admin = ?
+      WHERE provider_id = ? 
+      AND district_id = ? 
+      AND pet_id = ? 
+      AND service_id = ? 
+      AND users_id = ?;
+      `;
+      db.query(
+        queryString,
+        [payment_admin, providerId, districtId, petId, serviceId, usersId],
+        (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  };  
+
+  
+
 module.exports = Admin;

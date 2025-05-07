@@ -391,3 +391,31 @@ exports.updateJobstatus = async (req, res) => {
     res.status(400).send(err);
   }
 };
+
+exports.readPaymentAdmin = async (req, res) => {
+  try {
+    const tmpFolder = path.join(__dirname.replace("\\src\\controllers", ""), 'tmp');
+    // ดึงข้อมูลจากฐานข้อมูล
+    console.log('tmpFoldertmpFoldertmpFoldertmpFolder', tmpFolder)
+    console.log('__dirname', __dirname)
+    const result = await Provider.showPaymentAdmin();
+    res.status(200).send({
+      data: result,
+      message: 'Data retrieved successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.getPaymentAdmin= async (req, res) => {
+  try {
+    const { filename } = req.query;
+    const tmpFolder = path.join(__dirname.replace("\\src\\controllers", ""), 'tmp');
+    res.sendFile(path.join(tmpFolder, filename))
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
